@@ -5,6 +5,7 @@ import logging
 import signal
 import traceback
 import sys
+from datetime import timedelta
 
 import daemon
 from daemon import pidfile
@@ -34,8 +35,8 @@ class MQTTBaseApp:
         self.mqtt_topic: str = args["topic"]
         self.mqtt_qos: int = args["qos"]
         self.mqtt_retain: bool = args["retain"]
-        self.connect_timeout: int = args["connect_timeout"]
-        self.refresh_interval: int = args["refresh_interval"]
+        self.connect_timeout: float = args["connect_timeout"]
+        self.refresh_interval = timedelta(seconds=args["refresh_interval"])
 
     @classmethod
     def add_args(
@@ -85,7 +86,7 @@ class MQTTBaseApp:
         """Publish the contents of a file to the MQTT broker."""
         self._mqtt_client.publish(topic, payload, qos, retain)
 
-    def get_refresh_interval(self) -> float:
+    def get_refresh_interval(self) -> timedelta:
         """Calculate next refresh interval."""
         return self.refresh_interval
 
@@ -99,10 +100,10 @@ class MQTTBaseApp:
 
         mqtt_connected = False
         event_queue = self._event_queue
-        sleep_interval = self.connect_timeout  # on initial connect
+        sleep_interval = timedelta(seconds=self.connect_timeout)  # on initial connect
 
         while True:
-            event_queue.wait(sleep_interval)
+            event_queue.wait(sleep_interval / timedelta(milliseconds=1) / 1000)
             if event_queue.check():
                 while event := event_queue.pop():
                     _LOGGER.debug("processing event %s", type(event).__name__)
