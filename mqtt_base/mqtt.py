@@ -60,7 +60,6 @@ class MQTTClient:
                 args["will_qos"],
                 args["will_retain"],
             )
-        self.payload_file_missing = args["payload_file_missing"]
 
         if max_reconnect_delay := args["max_reconnect_delay"]:
             self.client.reconnect_delay_set(max_delay=max_reconnect_delay)
