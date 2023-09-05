@@ -91,11 +91,6 @@ def mqtt_add_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         help="MQTT topic for published message",
     )
     parser.add_argument(
-        "--payload-file-missing",
-        default=None,
-        help="MQTT payload to publish if file is not found",
-    )
-    parser.add_argument(
         "-q",
         "--qos",
         choices=range(0, 3),
