@@ -26,7 +26,6 @@ class MQTTClient:
         ## Create MQTT client
         self.client = mqtt.Client(client_id=args["client_id"])
         self.connected = False
-        self.error_file_not_found = False
 
         if args["tls"]:
             _LOGGER.info("enabling TLS")
