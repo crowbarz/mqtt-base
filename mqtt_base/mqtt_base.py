@@ -19,21 +19,23 @@ _LOGGER = logging.getLogger(APP_NAME)
 
 
 class MQTTBaseApp:
+    APP_NAME = APP_NAME
+
     def __init__(self, args: dict):
-        """Initialise MQTTRelayApp class."""
-        self.event_queue = EventQueue()  ## Initialise event queue
-        self.mqtt_client = MQTTClient(args)  ## Initialise MQTT client
+        """Initialise MQTTBaseApp class."""
+        self._event_queue = EventQueue()  ## Initialise event queue
+        self._mqtt_client = MQTTClient(args)  ## Initialise MQTT client
 
         ## Base MQTT arguments
-        self.mqtt_host = args["host"]
-        self.mqtt_port = args["port"]
-        self.mqtt_keepalive = args["keepalive"]
+        self.mqtt_host: str = args["host"]
+        self.mqtt_port: int = args["port"]
+        self.mqtt_keepalive: int = args["keepalive"]
 
-        self.mqtt_topic = args["topic"]
-        self.mqtt_qos = args["qos"]
-        self.mqtt_retain = args["retain"]
-        self.connect_timeout = args["connect_timeout"]
-        self.refresh_interval = args["refresh_interval"]
+        self.mqtt_topic: str = args["topic"]
+        self.mqtt_qos: int = args["qos"]
+        self.mqtt_retain: bool = args["retain"]
+        self.connect_timeout: int = args["connect_timeout"]
+        self.refresh_interval: int = args["refresh_interval"]
 
     @classmethod
     def add_args(
@@ -57,7 +59,7 @@ class MQTTBaseApp:
 
     def setup(self, args) -> None:
         """Set up app. Override with app specific setup as required."""
-        _LOGGER.info("setting up %s: %s", APP_NAME, args)
+        _LOGGER.info("setting up %s: %s", self.APP_NAME, args)
 
     def handle_event(self, event):
         """Handle app event. Override with app event handling.
@@ -77,22 +79,22 @@ class MQTTBaseApp:
 
     def shutdown(self):
         """Shut down app. Override with app specific shutdown."""
-        _LOGGER.info("shutting down %s", APP_NAME)
+        _LOGGER.info("shutting down %s", self.APP_NAME)
 
     def publish_mqtt(self, topic: str, payload: str, qos: int, retain: bool) -> bool:
         """Publish the contents of a file to the MQTT broker."""
-        self.mqtt_client.publish(topic, payload, qos, retain)
+        self._mqtt_client.publish(topic, payload, qos, retain)
 
     def _main_loop(self):
         """Main application loop."""
 
         ## Connect to MQTT broker
-        mqtt_client = self.mqtt_client
+        mqtt_client = self._mqtt_client
         _LOGGER.info("connecting to MQTT broker %s:%d", self.mqtt_host, self.mqtt_port)
         mqtt_client.connect(self.mqtt_host, self.mqtt_port, self.mqtt_keepalive)
 
         mqtt_connected = False
-        event_queue = self.event_queue
+        event_queue = self._event_queue
         sleep_interval = self.connect_timeout  # on initial connect
 
         while True:
@@ -106,7 +108,7 @@ class MQTTBaseApp:
                                 mqtt_connected = True
                                 self.handle_event(event)
                         case _:
-                            _LOGGER.error("unknown event type %s", type(event).__name__)
+                            self.handle_event(event)
             elif mqtt_connected:  ## waited for refresh_interval
                 _LOGGER.debug("triggering RefreshEvent")
                 self.handle_event(RefreshEvent())
@@ -118,8 +120,8 @@ class MQTTBaseApp:
         """Initiate shutdown of the application."""
         self.shutdown()
 
-        if self.mqtt_client:
-            self.mqtt_client.shutdown()
+        if self._mqtt_client:
+            self._mqtt_client.shutdown()
 
     @staticmethod
     def _setup_logging(log_level_count: int, logfile: str | None):
@@ -166,7 +168,7 @@ class MQTTBaseApp:
         try:
             app = cls(args)
         except Exception as exc:
-            print(f"ERROR: {exc}", file=sys.stderr)
+            print(f"ERROR: {type(exc).__name__}: {exc}", file=sys.stderr)
             exit(255)
 
         debug = args["debug"]
@@ -203,7 +205,7 @@ class MQTTBaseApp:
             pid_lock = pidfile.TimeoutPIDLockFile(pid_file) if pid_file else None
             with daemon.DaemonContext(pidfile=pid_lock):
                 MQTTBaseApp._setup_logging(debug, logfile)
-                _LOGGER.info("starting %s as daemon", APP_NAME)
+                _LOGGER.info("starting %s as daemon", cls.APP_NAME)
                 start()
         else:
             MQTTBaseApp._setup_logging(debug, logfile)
