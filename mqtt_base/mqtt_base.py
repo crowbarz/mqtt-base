@@ -85,6 +85,10 @@ class MQTTBaseApp:
         """Publish the contents of a file to the MQTT broker."""
         self._mqtt_client.publish(topic, payload, qos, retain)
 
+    def get_refresh_interval(self) -> float:
+        """Calculate next refresh interval."""
+        return self.refresh_interval
+
     def _main_loop(self):
         """Main application loop."""
 
@@ -114,7 +118,7 @@ class MQTTBaseApp:
                 self.handle_event(RefreshEvent())
             else:
                 raise Exception("connection to MQTT broker timed out")
-            sleep_interval = self.refresh_interval
+            sleep_interval = self.get_refresh_interval()
 
     def _shutdown(self):
         """Initiate shutdown of the application."""
