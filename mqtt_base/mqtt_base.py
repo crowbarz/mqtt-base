@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(APP_NAME)
 class MQTTBaseApp:
     APP_NAME = APP_NAME
 
-    def __init__(self, args: dict):
+    def __init__(self, args: dict) -> None:
         """Initialise MQTTBaseApp class."""
         self._event_queue = EventQueue()  ## Initialise event queue
         self._mqtt_client = MQTTClient(args)  ## Initialise MQTT client
@@ -61,7 +61,7 @@ class MQTTBaseApp:
         """Set up app. Override with app specific setup as required."""
         _LOGGER.info("setting up %s: %s", self.APP_NAME, args)
 
-    def handle_event(self, event):
+    def handle_event(self, event) -> None:
         """Handle app event. Override with app event handling.
 
         - MQTTConnectEvent is passed when MQTT broker connection is
@@ -77,7 +77,7 @@ class MQTTBaseApp:
             case _:
                 _LOGGER.error("unknown event type %s", type(event).__name__)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Shut down app. Override with app specific shutdown."""
         _LOGGER.info("shutting down %s", self.APP_NAME)
 
@@ -89,7 +89,7 @@ class MQTTBaseApp:
         """Calculate next refresh interval."""
         return self.refresh_interval
 
-    def _main_loop(self):
+    def _main_loop(self) -> None:
         """Main application loop."""
 
         ## Connect to MQTT broker
@@ -128,7 +128,7 @@ class MQTTBaseApp:
             self._mqtt_client.shutdown()
 
     @staticmethod
-    def _setup_logging(log_level_count: int, logfile: str | None):
+    def _setup_logging(log_level_count: int, logfile: str | None) -> None:
         log_level = logging.WARNING
         log_level_name = "default"
         if log_level_count >= 2:
@@ -161,7 +161,7 @@ class MQTTBaseApp:
         _LOGGER.info("setting log level to %s", log_level_name)
 
     @classmethod
-    def main(cls):
+    def main(cls) -> None:
         """Entrypoint to main application. Call via class."""
         ## Parse application arguments
         parser = cls.add_args(None)
@@ -216,7 +216,7 @@ class MQTTBaseApp:
             start()
 
 
-def main():
+def main() -> None:
     MQTTBaseApp.main()
 
 

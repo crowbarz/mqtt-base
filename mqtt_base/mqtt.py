@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(APP_NAME)
 class MQTTConnectEvent(AppEvent):
     """Event class for MQTT broker connect event."""
 
-    def __init__(self, flags, rc: int):
+    def __init__(self, flags, rc: int) -> None:
         self.flags = flags
         self.rc = rc
         super().__init__()
@@ -22,7 +22,7 @@ class MQTTConnectEvent(AppEvent):
 class MQTTClient:
     """MQTT client used to publish messages to MQTT broker."""
 
-    def __init__(self, args: dict):
+    def __init__(self, args: dict) -> None:
         ## Create MQTT client
         self.client = mqtt.Client(client_id=args["client_id"])
         self.connected = False
@@ -64,12 +64,12 @@ class MQTTClient:
         if max_reconnect_delay := args["max_reconnect_delay"]:
             self.client.reconnect_delay_set(max_delay=max_reconnect_delay)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Shut down the MQTT client."""
         if self.client:
             self.client.loop_stop()
 
-    def connect(self, host: str, port: int, keepalive: int):
+    def connect(self, host: str, port: int, keepalive: int) -> None:
         """Connect client to MQTT broker."""
         self.client.enable_logger(_LOGGER)
         self.client.on_connect = self.on_connect
@@ -81,7 +81,7 @@ class MQTTClient:
 
         self.client.loop_start()
 
-    def on_connect(self, client: mqtt.Client, userdata, flags, rc: int):
+    def on_connect(self, client: mqtt.Client, userdata, flags, rc: int) -> None:
         """Callback to process MQTT client connect event."""
         if rc > 0:
             _LOGGER.error(
@@ -102,7 +102,7 @@ class MQTTClient:
                 )
         MQTTConnectEvent(flags, rc)
 
-    def on_disconnect(self, client: mqtt.Client, userdata, rc: int):
+    def on_disconnect(self, client: mqtt.Client, userdata, rc: int) -> None:
         """Callback to process MQTT client disconnect event."""
         if rc > 0:
             _LOGGER.warning(

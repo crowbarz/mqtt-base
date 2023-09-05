@@ -12,7 +12,7 @@ _LOGGER = logging.getLogger(APP_NAME)
 class AppEvent:
     """Application event class."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         _LOGGER.debug("queuing event %s", type(self).__name__)
         EventQueue.event_queue.append(self)
         EventQueue.event_flag.set()
@@ -21,7 +21,7 @@ class AppEvent:
 class RefreshEvent(AppEvent):
     """Refresh interval event class. Raised by the main loop when refresh interval has elapsed."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass  ## do not add to event queue
 
 
