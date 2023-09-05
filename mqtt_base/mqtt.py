@@ -66,11 +66,13 @@ class MQTTClient:
 
     def shutdown(self) -> None:
         """Shut down the MQTT client."""
+        _LOGGER.info("shutting down MQTT client")
         if self.client:
             self.client.loop_stop()
 
     def connect(self, host: str, port: int, keepalive: int) -> None:
         """Connect client to MQTT broker."""
+        _LOGGER.info("connecting to MQTT broker %s:%d", host, port)
         self.client.enable_logger(_LOGGER)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect

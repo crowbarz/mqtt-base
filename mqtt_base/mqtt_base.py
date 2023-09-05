@@ -60,7 +60,8 @@ class MQTTBaseApp:
 
     def setup(self, args) -> None:
         """Set up app. Override with app specific setup as required."""
-        _LOGGER.info("setting up %s: %s", self.APP_NAME, args)
+        _LOGGER.info("setting up %s", self.APP_NAME)
+        _LOGGER.debug("args: %s", args)
 
     def handle_event(self, event) -> None:
         """Handle app event. Override with app event handling.
@@ -95,7 +96,6 @@ class MQTTBaseApp:
 
         ## Connect to MQTT broker
         mqtt_client = self._mqtt_client
-        _LOGGER.info("connecting to MQTT broker %s:%d", self.mqtt_host, self.mqtt_port)
         mqtt_client.connect(self.mqtt_host, self.mqtt_port, self.mqtt_keepalive)
 
         mqtt_connected = False
