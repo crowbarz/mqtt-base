@@ -10,7 +10,7 @@ from datetime import timedelta
 import daemon
 from daemon import pidfile
 
-from .args import mqtt_add_args, mqtt_post_process_args
+from .args import add_mqtt_args, add_daemon_args, add_debug_args, process_mqtt_args
 from .const import APP_NAME
 from .exception import ExitApp
 from .event import RefreshEvent, EventQueue
@@ -39,24 +39,28 @@ class MQTTBaseApp:
         self.refresh_interval = timedelta(seconds=args["refresh_interval"])
 
     @classmethod
-    def add_args(
-        cls, parser: argparse.ArgumentParser | None = None
-    ) -> argparse.ArgumentParser:
-        """Generate MQTT argument parser. Override with app specific arguments.
-
-        super().add_args() should be called by child class, either at start
-        (parser = argparse.ArugmentParser) or end (parser = None).
-        """
-        return mqtt_add_args(parser)
+    def add_app_args(cls, parser: argparse.ArgumentParser) -> None:
+        """Add app specific arguments to parser. Override if required."""
+        pass
 
     @classmethod
-    def post_process_args(cls, args: dict) -> dict:
-        """Perform post processing of args. Override with app specific processing.
+    def process_app_args(cls, args: dict) -> dict:
+        """Perform post processing of args. Override if required."""
+        return args
 
-        super().post_process_args() should be called by child class, either
-        at start (parser = argparse.ArugmentParser) or end (parser = None).
-        """
-        return mqtt_post_process_args(args)
+    @classmethod
+    def _parse_args(cls) -> dict:
+        """Parse arguments"""
+        parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
+        cls.add_app_args(parser)
+        add_mqtt_args(parser.add_argument_group("MQTT options"))
+        add_daemon_args(parser.add_argument_group("daemon options"))
+        add_debug_args(parser.add_argument_group("debug options"))
+        args = vars(parser.parse_args())
+
+        args = cls.process_app_args(args)
+        args = process_mqtt_args(args)
+        return args
 
     def setup(self, args) -> None:
         """Set up app. Override with app specific setup as required."""
@@ -165,9 +169,7 @@ class MQTTBaseApp:
     def main(cls) -> None:
         """Entrypoint to main application. Call via class."""
         ## Parse application arguments
-        parser = cls.add_args(None)
-        args = vars(parser.parse_args())
-        args = cls.post_process_args(args)
+        args = cls._parse_args()
 
         ## Instantiate application class
         try:

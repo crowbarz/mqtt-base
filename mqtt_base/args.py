@@ -27,10 +27,8 @@ def check_positive_int(value: Any) -> int:
     return ivalue
 
 
-def mqtt_add_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
-    """Parse command line arguments."""
-    if parser is None:
-        parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
+def add_mqtt_args(parser: argparse.ArgumentParser) -> None:
+    """Add MQTT command line arguments."""
     parser.add_argument(
         "-H",
         "--host",
@@ -184,6 +182,16 @@ def mqtt_add_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         help="Set retain flag for the will payload",
     )
     parser.add_argument(
+        "--refresh-interval",
+        default=60,
+        type=check_positive_int,
+        help="Set the interval for republishing with current content",
+    )
+
+
+def add_daemon_args(parser: argparse.ArgumentParser) -> None:
+    """Add daemon command line arguments."""
+    parser.add_argument(
         "--daemon",
         default=False,
         action="store_true",
@@ -194,13 +202,10 @@ def mqtt_add_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         default=None,
         help="File to store PID when running as a daemon",
     )
-    parser.add_argument(
-        "--refresh-interval",
-        default=60,
-        type=check_positive_int,
-        help="Set the interval for republishing with current content",
-    )
 
+
+def add_debug_args(parser: argparse.ArgumentParser) -> None:
+    """Add debug command line arguments."""
     parser.add_argument(
         "-d",
         "--debug",
@@ -220,11 +225,10 @@ def mqtt_add_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         version="%(prog)s " + VERSION,
         help="Show application version",
     )
-    return parser
 
 
-def mqtt_post_process_args(args: dict) -> dict:
+def process_mqtt_args(args: dict) -> dict:
     """Default post processing of arguments."""
-    if not args["port"]:
+    if args["port"] is None:
         args["port"] = DEF_MQTT_PORT_TLS if args["tls"] else DEF_MQTT_PORT
     return args
