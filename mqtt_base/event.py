@@ -40,7 +40,7 @@ class EventQueue:
             "woke up after %ds", (datetime.now() - sleep_start).total_seconds()
         )
 
-    def pop(self) -> AppEvent | None:
+    def pop(self) -> AppEvent:
         """Pop an event from the event queue."""
         if EventQueue.event_queue:
             return EventQueue.event_queue.pop(0)

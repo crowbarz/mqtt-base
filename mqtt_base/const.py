@@ -1,7 +1,7 @@
 """mqtt_base constants."""
 
 APP_NAME = "mqtt_base"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 DEF_MSG_TIMEOUT = 5  ## TODO
 

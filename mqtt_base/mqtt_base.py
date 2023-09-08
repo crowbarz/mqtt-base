@@ -75,13 +75,7 @@ class MQTTBaseApp:
         - RefreshEvent is passed when self.refresh_interval has elapsed since
           the previous event.
         """
-        match event:
-            case MQTTConnectEvent():
-                pass
-            case RefreshEvent():
-                pass
-            case _:
-                _LOGGER.error("unknown event type %s", type(event).__name__)
+        _LOGGER.error("unhandled event type %s", type(event).__name__)
 
     def shutdown(self) -> None:
         """Shut down app. Override with app specific shutdown."""
@@ -111,13 +105,10 @@ class MQTTBaseApp:
             if event_queue.check():
                 while event := event_queue.pop():
                     _LOGGER.debug("processing event %s", type(event).__name__)
-                    match event:
-                        case MQTTConnectEvent():
-                            if event.rc == 0:
-                                mqtt_connected = True
-                                self.handle_event(event)
-                        case _:
-                            self.handle_event(event)
+                    if isinstance(event, MQTTConnectEvent):
+                        if event.rc == 0:
+                            mqtt_connected = True
+                    self.handle_event(event)
             elif mqtt_connected:  ## waited for refresh_interval
                 _LOGGER.debug("triggering RefreshEvent")
                 self.handle_event(RefreshEvent())
@@ -133,7 +124,7 @@ class MQTTBaseApp:
             self._mqtt_client.shutdown()
 
     @staticmethod
-    def _setup_logging(log_level_count: int, logfile: str | None) -> None:
+    def _setup_logging(log_level_count: int, logfile: str) -> None:
         log_level = logging.WARNING
         log_level_name = "default"
         if log_level_count >= 2:
