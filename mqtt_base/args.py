@@ -189,6 +189,26 @@ def add_mqtt_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def add_discovery_args(parser: argparse.ArgumentParser) -> None:
+    """Add MQTT discovery line arguments."""
+    parser.add_argument(
+        "--mqtt-discovery",
+        action="store_true",
+        default=False,
+        help="Enable sending of Home Assistant MQTT discovery config",
+    )
+    parser.add_argument(
+        "--mqtt-discovery-topic",
+        default="homeassistant",
+        help="Topic for Home Assistant discovery messages",
+    )
+    parser.add_argument(
+        "--mqtt-discovery-object-id",
+        default="object",
+        help="Object ID for MQTT discovery",
+    )
+
+
 def add_daemon_args(parser: argparse.ArgumentParser) -> None:
     """Add daemon command line arguments."""
     parser.add_argument(

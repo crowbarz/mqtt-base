@@ -61,6 +61,13 @@ class MQTTClient:
                 args["will_retain"],
             )
 
+        self.mqtt_discovery = {}
+        if args["mqtt_discovery"]:
+            self.mqtt_discovery = {
+                "discovery_topic": args["mqtt_discovery_topic"],
+                "object_id": args["mqtt_discovery_object_id"],
+            }
+
         if max_reconnect_delay := args["max_reconnect_delay"]:
             self.client.reconnect_delay_set(max_delay=max_reconnect_delay)
 

@@ -31,6 +31,7 @@ class MQTTBaseApp:
         self.mqtt_host: str = args["host"]
         self.mqtt_port: int = args["port"]
         self.mqtt_keepalive: int = args["keepalive"]
+        self.mqtt_discovery = self._mqtt_client.mqtt_discovery
 
         self.mqtt_topic: str = args["topic"]
         self.mqtt_qos: int = args["qos"]
@@ -89,6 +90,18 @@ class MQTTBaseApp:
         """Calculate next refresh interval."""
         return self.refresh_interval
 
+    def get_mqtt_discovery_config(self, device_config: dict) -> dict:
+        """Return MQTT discovery config."""
+        return {}
+
+    def get_mqtt_device_config(self) -> dict:
+        """Device config for Home Assistant MQTT discovery."""
+        return {}
+
+    def _publish_mqtt_discovery(self) -> None:
+        """Publish MQTT discovery config."""
+        pass
+
     def _main_loop(self) -> None:
         """Main application loop."""
 
@@ -108,6 +121,7 @@ class MQTTBaseApp:
                     if isinstance(event, MQTTConnectEvent):
                         if event.rc == 0:
                             mqtt_connected = True
+                        self._publish_mqtt_discovery()
                     self.handle_event(event)
             elif mqtt_connected:  ## waited for refresh_interval
                 _LOGGER.debug("triggering RefreshEvent")
