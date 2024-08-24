@@ -10,7 +10,13 @@ from datetime import timedelta
 import daemon
 from daemon import pidfile
 
-from .args import add_mqtt_args, add_daemon_args, add_debug_args, process_mqtt_args
+from .args import (
+    add_mqtt_args,
+    add_daemon_args,
+    add_discovery_args,
+    add_debug_args,
+    process_mqtt_args,
+)
 from .const import APP_NAME
 from .exception import ExitApp
 from .event import RefreshEvent, EventQueue
@@ -55,6 +61,7 @@ class MQTTBaseApp:
         parser = argparse.ArgumentParser(argument_default=argparse.SUPPRESS)
         cls.add_app_args(parser)
         add_mqtt_args(parser.add_argument_group("MQTT options"))
+        add_discovery_args(parser.add_argument_group("MQTT discovery options"))
         add_daemon_args(parser.add_argument_group("daemon options"))
         add_debug_args(parser.add_argument_group("debug options"))
         args = vars(parser.parse_args())
